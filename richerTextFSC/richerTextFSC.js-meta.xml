@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>48.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="richText" type="String" description="Rich Text input to the Flow - this is the value you will be manipulating"/>
+            <property name="disallowedWordsList" type="String" role="inputOnly" description="Comma-separated list of words to block.  Example: bad,worse,worst"/>
+            <property name="disallowedSymbolsList" type="String" role="inputOnly" description="Comma-separated list of words to block.  Example: /,@,*"/>
+            <property name="autoReplaceMap" type="String" role="inputOnly" description='JSON for key:value pairs you want to replace.  Key = value to replace, Value = value to replace with.  Example: {"Test":"GreatTest™"}'/>
+            <property name="hardBlock" type="Boolean" role="inputOnly" description="Set to True if you want to block Next where disallowed Symbol or Word remains.  Default is false.  If set to True, error messages are also provided"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
