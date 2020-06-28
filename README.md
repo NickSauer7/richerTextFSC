@@ -1,4 +1,4 @@
-# inputRichTextFSC
+# richerTextFSC
 Rich Text enhancements for Flows
 
 ### Summary:
