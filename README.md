@@ -2,6 +2,7 @@
 Rich Text enhancements for Flows
 
 ### Summary:
+IMPORTANT:  Use richerText = true input attribute if you want to leverage these enhanced features.  Otherwise leave empty and regular input Rich Text component will be used.
 1)	Block disallowed words and symbols
     a.	Control whether this is a block that prevents next/finish of flow.
 2)	Search and Replace custom text
@@ -15,11 +16,13 @@ Rich Text enhancements for Flows
 
 |Parameter	               |I	   |O	     |Information 
 |--------------------------|-----|-------|-------------------------------------------------------------------------------|
+|**richerText**            |X    |       |  Boolean.  Set to true if you want to use enhanced rich text.  Default if false (regular input component)   |
 |**autoReplaceMap**	           |X	   |       |JSON formatted key:value map.  (example => {"Test": "GreatTest™"} )            |
 |**disallowedSymbols**	       |X	   |       |Comma-separated list of words to block.  Example: /,@,*                        |
 |**disallowedWords**	         |X    |	     |Comma-separated list of words to block.  Example: bad,worse,worst              |
-|**hardBlock**	               |X	   |	     |Set to True if you want to block Next where disallowed Symbol or Word remains.  Default is false.  If set to True, error messages are also provided      |
+|**warnOnly**	               |X	   |	     |Boolean.  Set to True if you want to allow Next even where disallowed Symbol or Word remains.  Default is false.   |
 |**richText**	                 |X	   |X	     |Input and output RichText that you’ll be editing                               |
+|**label**                      |X     |X        |Input to provide field-level label if desired                                 |
 
 
 ### User Instructions:
