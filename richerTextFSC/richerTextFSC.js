@@ -4,21 +4,28 @@ Created By:  Nick Sauer
 Advised By:  Alex Edelstein
 Created Date:  06/25/2020
 */
+
 import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class RicherTextFSC extends LightningElement {
 
     //Input and Output Attributes for Flow
-    @api richText;
+    @api value;
+    @api richerText = false;
     @api disallowedWordsList;
     @api disallowedSymbolsList;
     @api autoReplaceMap;
-    @api hardBlock = false;
+    @api warnOnly = false;
+    @api label;
+    formats = ['font', 'size', 'bold', 'italic', 'underline',
+        'strike', 'list', 'indent', 'align', 'link',
+        'image', 'clean', 'table', 'header', 'color','background','code','code-block','script','blockquote','direction'];
 
-    //Validation hook to use standard in Flow
+    //Validation hook to use standard in Flow.  Only enforce if 
     @api validate(){
-        if(!this.hardBlock || (this.hardBlock && this.isValidCheck)){
+        this.value = this.richText;
+        if(!this.richerText || this.warnOnly || (!this.warnOnly && this.isValidCheck)){
             return {isValid:true};
         }else{
             return {
@@ -29,6 +36,7 @@ export default class RicherTextFSC extends LightningElement {
     }
 
     //Other Variables
+    @track richText; //use separate variable for richerText as value is causing conflict
     @track disallowedWordsArray = [];
     @track disallowedWords;
     @track disallowedWordsMessage;
@@ -42,11 +50,10 @@ export default class RicherTextFSC extends LightningElement {
     @track wordsNotAllowed;
     @track oldRichText;
     @track selectTrue = false;
-    @track searchTerm = false;
     @track allowRevert = false;
     @track autoReplaceEnabled = false;
-    @track disallowedType = 'warning';
-    @track disallowedMode = 'dismissable';
+    @track disallowedType = 'error';
+    @track disallowedMode = 'sticky';
     replaceMap = {};
     regTerm = '';
     applyTerm = '';
@@ -57,57 +64,55 @@ export default class RicherTextFSC extends LightningElement {
 
     //Set initial values on load
     connectedCallback() {
-        console.log('this disallowed symbol: '+this.disallowedSymbolsList);
-        if(this.disallowedSymbolsList != undefined){
-            this.disallowedSymbolsMessage = 'Do Not Use the Following Symbols: '+this.disallowedSymbolsList;
-            this.disallowedSymbolsArray = this.disallowedSymbolsList.replace(/\s/g,'').split(',');
-            for(let i=0; i<this.disallowedSymbolsArray.length; i++){
-                if(i == 0){
-                    if(this.disallowedSymbolsArray.length != 1){
-                        this.disallowedSymbols = '['+ this.disallowedSymbolsArray[i] + '|';
-                    }else{
-                        this.disallowedSymbols = '['+ this.disallowedSymbolsArray[i] + ']';
+        if(this.richerText){
+            this.richText = this.value;
+            if(this.disallowedSymbolsList != undefined){
+                this.disallowedSymbolsMessage = 'Do Not Use the Following Symbols: '+this.disallowedSymbolsList;
+                this.disallowedSymbolsArray = this.disallowedSymbolsList.replace(/\s/g,'').split(',');
+                for(let i=0; i<this.disallowedSymbolsArray.length; i++){
+                    if(i == 0){
+                        if(this.disallowedSymbolsArray.length != 1){
+                            this.disallowedSymbols = '['+ this.disallowedSymbolsArray[i] + '|';
+                        }else{
+                            this.disallowedSymbols = '['+ this.disallowedSymbolsArray[i] + ']';
+                        }
+                    } else if (i == (this.disallowedSymbolsArray.length - 1)){
+                        this.disallowedSymbols = this.disallowedSymbols.concat(this.disallowedSymbolsArray[i] + ']');
+                    } else {
+                        this.disallowedSymbols = this.disallowedSymbols.concat(this.disallowedSymbolsArray[i] + '|');
                     }
-                } else if (i == (this.disallowedSymbolsArray.length - 1)){
-                    this.disallowedSymbols = this.disallowedSymbols.concat(this.disallowedSymbolsArray[i] + ']');
-                } else {
-                    this.disallowedSymbols = this.disallowedSymbols.concat(this.disallowedSymbolsArray[i] + '|');
                 }
             }
-        }
-
-        console.log('this disallowed words: '+this.disallowedWordsList);
-        if(this.disallowedWordsList != undefined){
-            this.disallowedWordsMessage = 'Do Not Use the Following Words: '+this.disallowedWordsList;
-            this.disallowedWordsArray = this.disallowedWordsList.replace(/\s/g,'').split(',');
-            console.log('disallowed words array: '+this.disallowedWordsArray);
-            for(let i=0; i<this.disallowedWordsArray.length; i++){
-                if(i == 0){
-                    if(this.disallowedWordsArray.length != 1){
-                        this.disallowedWords = '('+this.disallowedWordsArray[i] + '|';
-                    }else{
-                        this.disallowedWords = '('+this.disallowedWordsArray[i] + ')\\b';
+    
+            if(this.disallowedWordsList != undefined){
+                this.disallowedWordsMessage = 'Do Not Use the Following Words: '+this.disallowedWordsList;
+                this.disallowedWordsArray = this.disallowedWordsList.replace(/\s/g,'').split(',');
+                for(let i=0; i<this.disallowedWordsArray.length; i++){
+                    if(i == 0){
+                        if(this.disallowedWordsArray.length != 1){
+                            this.disallowedWords = '('+this.disallowedWordsArray[i] + '|';
+                        }else{
+                            this.disallowedWords = '('+this.disallowedWordsArray[i] + ')\\b';
+                        }
+                    } else if (i == (this.disallowedWordsArray.length - 1)){
+                        this.disallowedWords = this.disallowedWords.concat(this.disallowedWordsArray[i] + ')\\b');
+                    } else {
+                        this.disallowedWords = this.disallowedWords.concat(this.disallowedWordsArray[i] + '|');
                     }
-                } else if (i == (this.disallowedWordsArray.length - 1)){
-                    this.disallowedWords = this.disallowedWords.concat(this.disallowedWordsArray[i] + ')\\b');
-                } else {
-                    this.disallowedWords = this.disallowedWords.concat(this.disallowedWordsArray[i] + '|');
                 }
-                console.log('running words array: '+this.disallowedWords);
             }
-        }
-        console.log('existing disallowed: '+this.disallowedSymbols+', '+this.disallowedWords);
-        console.log('existing autoReplaceMap: '+this.autoReplaceMap);
-        if(this.disallowedSymbols != undefined) this.symbolsNotAllowed = new RegExp(this.disallowedSymbols);
-        if(this.disallowedWords != undefined) this.wordsNotAllowed = new RegExp(this.disallowedWords);
-        if(this.autoReplaceMap != undefined){
-            this.replaceMap = JSON.parse(this.autoReplaceMap);
-            this.autoReplaceEnabled = true;
-        } 
-        this.isValidCheck = true;
-        if(this.hardBlock){
-            this.disallowedType = 'error';
-            this.disallowedMode = 'sticky';
+            if(this.disallowedSymbols != undefined) this.symbolsNotAllowed = new RegExp(this.disallowedSymbols);
+            if(this.disallowedWords != undefined) this.wordsNotAllowed = new RegExp(this.disallowedWords);
+            if(this.autoReplaceMap != undefined){
+                this.replaceMap = JSON.parse(this.autoReplaceMap);
+                this.autoReplaceEnabled = true;
+            } 
+            this.isValidCheck = true;
+            //if warn only is set, then change toast type/mode
+            if(this.warnOnly){
+                this.disallowedType = 'warning';
+                this.disallowedMode = 'dismissable';
+            }
         }
     }
 
@@ -188,10 +193,8 @@ export default class RicherTextFSC extends LightningElement {
         this.oldRichText = this.richText;
         this.allowRevert = true;
         let draftValue = this.richText;
-        console.log('draftValue in text: ' + draftValue);
         let regTerm = '';
         for (var key in this.replaceMap) {
-            console.log('key in loop: ' + key);
             this.applyTerm = this.replaceMap[key];
             this.regTerm = key;
             draftValue = this.replaceAll(draftValue, this.regTerm, this.applyTerm);
