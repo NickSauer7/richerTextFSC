@@ -1,5 +1,7 @@
-# Moved to UnofficialSF here:  https://unofficialsf.com/nick-sauer-adds-smart-word-processing-features-to-rich-text-input/
 # Since replaced by a much better and more full-featured tool called 'TextAreaPlus' - please use that one here:  https://unofficialsf.com/text-area-plus/
+
+# Notice
+Moved to UnofficialSF here:  https://unofficialsf.com/nick-sauer-adds-smart-word-processing-features-to-rich-text-input/
 
 # richerTextFSC
 Rich Text enhancements for Flows
